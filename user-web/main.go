@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go-blog-api/user-web/global"
 	"go-blog-api/user-web/initialize"
-	myvalidator "go-blog-api/user-web/validator"
+	myvalidator "go-blog-api/user-web/validators"
 	"go.uber.org/zap"
 )
 

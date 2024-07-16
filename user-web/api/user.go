@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	redis2 "github.com/go-redis/redis/v8"
 	"go-blog-api/user-web/forms"
 	"go-blog-api/user-web/global"
 	"go-blog-api/user-web/global/response"
@@ -129,6 +130,13 @@ func Login(ctx *gin.Context) {
 	loginForm := forms.PasswordLoginForm{}
 	if err := ctx.ShouldBind(&loginForm); err != nil {
 		HandleValidatorErr(ctx, err)
+		return
+	}
+	if !store.Verify(loginForm.CaptchaId, loginForm.Captcha, true) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"captcha": "验证码错误",
+		})
+		return
 	}
 	userCoon, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
 	if err != nil {
@@ -197,4 +205,71 @@ func Login(ctx *gin.Context) {
 			}
 		}
 	}
+}
+
+func RegisterUser(ctx *gin.Context) {
+
+	registerUserForm := forms.RegisterUserForm{}
+	if err := ctx.ShouldBind(&registerUserForm); err != nil {
+		HandleValidatorErr(ctx, err)
+		return
+	}
+	redis := redis2.NewClient(&redis2.Options{
+		Addr: fmt.Sprintf("%s:%d", global.ServerConfig.RedisConfig.Host, global.ServerConfig.RedisConfig.Port),
+	})
+	result, err := redis.Get(context.Background(), registerUserForm.Phone).Result()
+	if err == redis2.Nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": "验证码失效",
+		})
+		return
+	}
+	if result != registerUserForm.Code {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": "验证码错误",
+		})
+		return
+	}
+
+	userCoon, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
+	if err != nil {
+		zap.S().Errorf("用户服务连接失败：%s", err.Error())
+	}
+	userClient := proto.NewUserClient(userCoon)
+	userInfoResponse, err := userClient.CreateUser(context.Background(), &proto.CreateUserInfo{
+		UserName: registerUserForm.UserName,
+		NickName: registerUserForm.NickName,
+		Phone:    registerUserForm.Phone,
+		Sex:      registerUserForm.Sex,
+		Password: registerUserForm.Password,
+	})
+	if err != nil {
+		zap.S().Errorw("创建用户失败", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+	j := middlewares.NewJWT()
+	claims := models.CustomClaims{
+		ID:          uint(userInfoResponse.Id),
+		NickName:    userInfoResponse.NickName,
+		AuthorityId: 1,
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix(),
+			ExpiresAt: time.Now().Unix() + 60*60*24*30,
+			Issuer:    "imooc",
+		},
+	}
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "生成token失败",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         userInfoResponse.Id,
+		"nick_name":  userInfoResponse.NickName,
+		"token":      token,
+		"expired_at": (time.Now().Unix() + 60*60*24*30) * 1000,
+	})
 }
