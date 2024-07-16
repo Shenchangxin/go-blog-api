@@ -138,6 +138,7 @@ func Login(ctx *gin.Context) {
 		})
 		return
 	}
+	//测试github提交记录
 	userCoon, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
 	if err != nil {
 		zap.S().Errorf("用户服务连接失败：%s", err.Error())
