@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
 	"go-blog-api/user-web/global"
 	"go-blog-api/user-web/initialize"
+	"go-blog-api/user-web/utils"
 	myvalidator "go-blog-api/user-web/validators"
 	"go.uber.org/zap"
 )
@@ -18,6 +20,16 @@ func main() {
 		panic(err)
 	}
 	initialize.InitSrvConn()
+
+	viper.AutomaticEnv()
+	dev := viper.GetBool("GO-BLOG")
+	if dev {
+		port, err := utils.GetFreePort()
+		if err == nil {
+			global.ServerConfig.Port = port
+		}
+	}
+
 	//注册验证器和翻译器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("mobile", myvalidator.ValidateMobile)

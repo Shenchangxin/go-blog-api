@@ -19,7 +19,7 @@ func InitConfig() {
 	configFilePrefix := "config"
 
 	configFileName := fmt.Sprintf("user-web/%s-pro.yaml", configFilePrefix)
-	if debug {
+	if !debug {
 		configFileName = fmt.Sprintf("user-web/%s-dev.yaml", configFilePrefix)
 	}
 	v := viper.New()
