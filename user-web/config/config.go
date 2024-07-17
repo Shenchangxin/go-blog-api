@@ -2,7 +2,8 @@ package config
 
 type UserServerInfo struct {
 	Host string `mapstructure:"host"`
-	Port int32  `mapstructure:"port""`
+	Port int32  `mapstructure:"port"`
+	Name string `mapstructure:"name"`
 }
 type JWTConfig struct {
 	SigningKey string `mapstructure:"key"`
@@ -15,7 +16,12 @@ type AliSmsConfig struct {
 
 type RedisConfig struct {
 	Host string `mapstructure:"host"`
-	Port int32  `mapstructure:"port""`
+	Port int32  `mapstructure:"port"`
+}
+
+type ConsulConfig struct {
+	Host string `mapstructure:"host"`
+	Port int32  `mapstructure:"port"`
 }
 
 type ServerConfig struct {
@@ -24,5 +30,6 @@ type ServerConfig struct {
 	UserSrvInfo  UserServerInfo `mapstructure:"user_srv"`
 	JWTConfig    JWTConfig      `mapstructure:"jwt"`
 	AliSmsConfig AliSmsConfig   `mapstructure:"ali-sms"`
+	ConsulConfig ConsulConfig   `mapstructure:"consul"`
 	RedisConfig  RedisConfig    `mapstructure:"redis"`
 }

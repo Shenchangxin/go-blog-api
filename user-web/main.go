@@ -17,7 +17,7 @@ func main() {
 	if err := initialize.InitTrans("zh"); err != nil {
 		panic(err)
 	}
-
+	initialize.InitSrvConn()
 	//注册验证器和翻译器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("mobile", myvalidator.ValidateMobile)

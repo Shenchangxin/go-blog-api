@@ -14,7 +14,6 @@ import (
 	"go-blog-api/user-web/models"
 	"go-blog-api/user-web/proto"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
@@ -79,18 +78,16 @@ func HandleGrpcErrorToHttp(err error, ctx *gin.Context) {
 
 func GetUserList(ctx *gin.Context) {
 
-	userCoon, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
-	if err != nil {
-		zap.S().Errorf("用户服务连接失败：%s", err.Error())
-	}
-	userClient := proto.NewUserClient(userCoon)
+	claims, _ := ctx.Get("claims")
+	currentUser := claims.(*models.CustomClaims)
+	zap.S().Infof("访问用户：%d", currentUser.ID)
 
 	pageNo := ctx.DefaultQuery("pageNo", "0")
 	pageSize := ctx.DefaultQuery("pageSize", "10")
 	pageNoInt, _ := strconv.Atoi(pageNo)
 	pageSizeInt, _ := strconv.Atoi(pageSize)
 
-	rsp, err := userClient.GetUserList(context.Background(), &proto.PageInfo{
+	rsp, err := global.UserSrvClient.GetUserList(context.Background(), &proto.PageInfo{
 		PageNo:   uint32(pageNoInt),
 		PageSize: uint32(pageSizeInt),
 	})
@@ -138,14 +135,8 @@ func Login(ctx *gin.Context) {
 		})
 		return
 	}
-	//测试github提交记录
-	userCoon, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
-	if err != nil {
-		zap.S().Errorf("用户服务连接失败：%s", err.Error())
-	}
-	userClient := proto.NewUserClient(userCoon)
 
-	if rsp, err := userClient.GetUserByUserName(context.Background(), &proto.UserNameRequest{
+	if rsp, err := global.UserSrvClient.GetUserByUserName(context.Background(), &proto.UserNameRequest{
 		Username: loginForm.UserName,
 	}); err != nil {
 		if e, ok := status.FromError(err); ok {
@@ -163,7 +154,7 @@ func Login(ctx *gin.Context) {
 		}
 	} else {
 		//校验密码是否正确
-		passRsp, passErr := userClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+		passRsp, passErr := global.UserSrvClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
 			Password:          loginForm.Password,
 			EncryptedPassword: rsp.Sex, //TODO 将用户密码也查出来放到rsp中
 		})
@@ -232,12 +223,7 @@ func RegisterUser(ctx *gin.Context) {
 		return
 	}
 
-	userCoon, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
-	if err != nil {
-		zap.S().Errorf("用户服务连接失败：%s", err.Error())
-	}
-	userClient := proto.NewUserClient(userCoon)
-	userInfoResponse, err := userClient.CreateUser(context.Background(), &proto.CreateUserInfo{
+	userInfoResponse, err := global.UserSrvClient.CreateUser(context.Background(), &proto.CreateUserInfo{
 		UserName: registerUserForm.UserName,
 		NickName: registerUserForm.NickName,
 		Phone:    registerUserForm.Phone,
