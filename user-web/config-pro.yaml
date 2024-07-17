@@ -19,3 +19,12 @@ redis:
 consul:
   host: 192.168.44.15
   port: 8500
+
+nacos:
+  host: '192.168.44.15'
+  port: 8848
+  namespace: '1d5b3a81-faf2-47a0-8166-98b24e87fda3'
+  user: 'nacos'
+  password: 'nacos'
+  dataId: 'user-web.json'
+  group: 'dev'
