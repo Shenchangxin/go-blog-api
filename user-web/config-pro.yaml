@@ -1,30 +1,8 @@
-name: user-web
-port: 8021
-user-srv:
-  host: 192.168.44.15
-  port: 50051
-  name: 'user-srv'
 
-jwt:
-  key: 'shenchangxingogogo'
-
-ali-sms:
-  key: 'ttttt'
-  secret: 'tttttt'
-
-redis:
-  host: 192.168.24.5
-  port: 6379
-
-consul:
-  host: 192.168.44.15
-  port: 8500
-
-nacos:
-  host: '192.168.44.15'
-  port: 8848
-  namespace: '1d5b3a81-faf2-47a0-8166-98b24e87fda3'
-  user: 'nacos'
-  password: 'nacos'
-  dataId: 'user-web.json'
-  group: 'dev'
+host: '192.168.44.15'
+port: 8848
+namespace: '1d5b3a81-faf2-47a0-8166-98b24e87fda3'
+user: 'nacos'
+password: 'nacos'
+dataId: 'user-web.json'
+group: 'pro'

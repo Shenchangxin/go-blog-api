@@ -26,7 +26,7 @@ type ConsulConfig struct {
 
 type NacosConfig struct {
 	Host      string `mapstructure:"host" json:"host"`
-	Port      int    `mapstructure:"port" json:"port"`
+	Port      uint64 `mapstructure:"port" json:"port"`
 	NameSpace string `mapstructure:"namespace" json:"namespace"`
 	User      string `mapstructure:"user" json:"user"`
 	Password  string `mapstructure:"password" json:"password"`
@@ -35,7 +35,7 @@ type NacosConfig struct {
 }
 
 type ServerConfig struct {
-	Name         string         `mapstructure:"name" json:"host"`
+	Name         string         `mapstructure:"name" json:"name"`
 	Port         int            `mapstructure:"port" json:"port"`
 	UserSrvInfo  UserServerInfo `mapstructure:"user_srv" json:"user_srv"`
 	JWTConfig    JWTConfig      `mapstructure:"jwt" json:"jwt"`
