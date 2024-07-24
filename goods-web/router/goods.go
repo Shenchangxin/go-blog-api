@@ -2,7 +2,12 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-blog-api/goods-web/api/goods"
 )
 
-func InitUserRouter(Router *gin.RouterGroup) {
+func InitGoodsRouter(Router *gin.RouterGroup) {
+	GoodsRouter := Router.Group("goods")
+	{
+		GoodsRouter.GET("list", goods.List)
+	}
 }
