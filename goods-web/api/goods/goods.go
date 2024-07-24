@@ -123,3 +123,7 @@ func List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resMap)
 
 }
+
+func CreateGoods(ctx *gin.Context) {
+
+}
