@@ -1,0 +1,8 @@
+
+host: '192.168.44.15'
+port: 8848
+namespace: '5248af06-79d5-419a-945e-422b4c6c8131'
+user: 'nacos'
+password: 'nacos'
+dataId: 'goods-web.json'
+group: 'dev'
