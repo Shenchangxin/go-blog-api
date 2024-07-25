@@ -13,5 +13,8 @@ func Routers() *gin.Engine {
 	ApiGroup := Router.Group("/v1")
 	zap.S().Info("----配置商品相关URL----")
 	router.InitGoodsRouter(ApiGroup)
+	router.InitCategoryRouter(ApiGroup)
+	router.InitBannerRouter(ApiGroup)
+	router.InitBrandRouter(ApiGroup)
 	return Router
 }

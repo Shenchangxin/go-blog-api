@@ -10,5 +10,9 @@ func InitGoodsRouter(Router *gin.RouterGroup) {
 	{
 		GoodsRouter.GET("list", goods.List)
 		GoodsRouter.GET("createGoods", goods.CreateGoods)
+		GoodsRouter.GET("deleteGoods", goods.Delete)
+		GoodsRouter.GET("updateGoods", goods.Update)
+		GoodsRouter.GET("updateStatus", goods.UpdateStatus)
+		GoodsRouter.GET("stocks", goods.Stocks)
 	}
 }
